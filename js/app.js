@@ -3,11 +3,12 @@ $(document).ready(pageLoad);
 function pageLoad(){
 	
 
-	//initialize variables
+	//variables
 	var secretNumber, 
 	userGuess, 
 	pastGuesses = [], 
 	count,
+	guessHtml,
 	userFeedback,
 	alreadyGuessed,
 	newgameBtn,
@@ -64,15 +65,19 @@ function pageLoad(){
 	//focus on input for next guess
 	input.focus();
 	//ensure valid input
-	if(checkGuess()){return ;}
+	if(isValidInput()){return ;}
 	//generate feedback
 	generateFeedback();
+	//track the users past guesses
+	displayPastGuesses();
+	//keep a "count" of the guesses made
+	guessCount();
 	//display changes to the page
 	display();
 	}
 
   	//check for valid input
-  	function checkGuess(){
+  	function isValidInput(){
   		if(userGuess % 1 !== 0){
   			alert('please input a number');
   			return true;
@@ -82,6 +87,7 @@ function pageLoad(){
   			return true;
   		}
   		if(pastGuesses.length > 0){
+			console.log(pastGuesses)
 			$.each(pastGuesses,function(guess,value){
 				if(userGuess == value){
 					alreadyGuessed = true;
@@ -103,7 +109,7 @@ function pageLoad(){
 		} else if(Math.abs(secretNumber - userGuess) < 10){
 			userFeedback = 'Hot';
 		} else if(Math.abs(secretNumber - userGuess) < 20 && Math.abs(secretNumber - userGuess) > 9){
-			userFeedback = ' Getting Warmer';
+			userFeedback = 'Getting Warmer';
 		} else if(Math.abs(secretNumber - userGuess) < 30 && Math.abs(secretNumber - userGuess) > 19){
 			userFeedback = 'Less Warm';
 		} else {
@@ -111,9 +117,25 @@ function pageLoad(){
 		}
 	}
 
+		//keep track of users past guesses
+		function displayPastGuesses(){
+		pastGuesses.push(userGuess);
+		guessHtml = '';
+		if(pastGuesses[0].length) {
+			$.each(pastGuesses,function(guess,value){
+				guessHtml += '<li>' + value + '</li>';
+			});
+		}
+	}
+
+	//keep track of guess count
+	function guessCount(){
+		count++;
+	}
 
 	// display page functions
 	function display(){
+		guessList.html(guessHtml);
 		countElement.html(count);
 		feedback.html(userFeedback);
 	}
@@ -121,6 +143,7 @@ function pageLoad(){
 	function winner(){
 		userFeedback = 'You Won! Click New Game To Reset';
 		form.find('input[type=submit]').css('opacity','0');
+		$('h2').css('background', '#839d57');
 	}
   	
 	//generate secret number
@@ -132,8 +155,11 @@ function pageLoad(){
 	//reset page 
 	function resetVariables(){
 		count = 0;
+		pastGuesses = [];
+		guessHtml = '';
 		userGuess = '';
 		userFeedback = 'Make your Guess!';
 	}
 }
+
 
